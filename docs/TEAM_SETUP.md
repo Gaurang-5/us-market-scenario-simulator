@@ -17,25 +17,14 @@ The project already has Shiller monthly market history, Kenneth French's US dail
 
 Free access does not automatically permit sharing downloaded data. Tiingo's free plan is for personal internal use, so share the collection code and source links in GitHub while each teammate downloads data under their own permitted access. Do not put tokens or generated market-price files into the repository. See [Tiingo's license description](https://www.tiingo.com/about/pricing).
 
-## Put the code on GitHub
+## Share the repository
 
-This directory is already a local Git repository, but it has no commit or remote yet. Run these commands in the project directory after reviewing the staged files:
-
-```sh
-git add .gitignore README.md requirements.txt scripts tests docs data/templates data/drafts
-git diff --cached --stat
-git diff --cached --check
-git commit -m "Add reproducible market dataset pipeline"
-gh auth login
-gh repo create us-market-scenario-simulator --private --source=. --remote=origin --push
-```
-
-`gh auth login` is needed only if GitHub CLI is not already authenticated. Choose a private repository while the team is organizing the project. GitHub Free supports collaborators on private repositories. On GitHub, open **Settings → Collaborators → Add people** and invite the other three GitHub usernames. Send them the repository link, not the data files. [GitHub collaborator instructions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/inviting-collaborators-to-a-personal-repository).
+The project is in the private [Gaurang-5/us-market-scenario-simulator](https://github.com/Gaurang-5/us-market-scenario-simulator) repository. The owner can open **Settings → Collaborators → Add people** and invite the other three GitHub usernames. Send teammates the repository link, not downloaded data files. [GitHub collaborator instructions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/inviting-collaborators-to-a-personal-repository).
 
 ## Each teammate's setup
 
 ```sh
-git clone https://github.com/OWNER/us-market-scenario-simulator.git
+git clone https://github.com/Gaurang-5/us-market-scenario-simulator.git
 cd us-market-scenario-simulator
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
@@ -44,7 +33,7 @@ python3 -m venv .venv
 .venv/bin/python scripts/collect_etfs.py coverage
 ```
 
-Replace `OWNER` with the GitHub account that created the repository. Each teammate who uses Tiingo should set their own API token locally and run `scripts/collect_etfs.py download`. Then run `scripts/build_model_tables.py`, `scripts/evaluate_baseline.py`, `scripts/build_event_drafts.py`, `scripts/validate_drafts.py`, and `scripts/audit_data.py`. The `.gitignore` excludes `.venv/`, tokens in `.env` files, and `data/raw/` and `data/processed/`. Before every push, run `git status --short` and check that no downloaded data or secret is staged. Read [Data status](DATA_STATUS.md) before choosing new features or event tests.
+Each teammate who uses Tiingo should set their own API token locally and run `scripts/collect_etfs.py download`. Then run `scripts/build_model_tables.py`, `scripts/evaluate_baseline.py`, `scripts/build_event_drafts.py`, `scripts/validate_drafts.py`, and `scripts/audit_data.py`. The `.gitignore` excludes `.venv/`, tokens in `.env` files, and `data/raw/` and `data/processed/`. Before every push, run `git status --short` and check that no downloaded data or secret is staged. Read [Data status](DATA_STATUS.md) and the [dataset review guide](DATA_REVIEW_GUIDE.md) before choosing new features or event tests.
 
 ## Work without overwriting each other
 

@@ -83,4 +83,4 @@ Source pages: [Shiller](https://shillerdata.com/), [Ken French](https://mba.tuck
 
 For other free sources and the four-person GitHub workflow, see [Team setup](docs/TEAM_SETUP.md).
 
-Read [Data status and team review](docs/DATA_STATUS.md) for the current data boundary and the remaining human checks.
+Read [Data status](docs/DATA_STATUS.md) for the current data boundary and the [dataset review guide](docs/DATA_REVIEW_GUIDE.md) for the team's manual checks.

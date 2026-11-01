@@ -2,6 +2,8 @@
 
 This repository holds the data pipeline for a US market scenario simulator. It keeps three market histories separate: Shiller monthly observations from 1900, Kenneth French's US daily market and industry returns from 1926, and six ETF price histories from 1999. "French" is the researcher's surname, not a reference to France. It also collects oil, Treasury yield, VIX, geopolitical risk, housing starts, and FDIC bank-failure records.
 
+The [progress presentation](presentation/progress.html) is a standalone HTML slide deck. Open it in a browser and use the arrow keys or on-screen controls. The deck states what is built and what remains planned.
+
 ## Build the data
 
 ```sh

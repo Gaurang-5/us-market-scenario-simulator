@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>US Market Scenario Simulator — Progress Review</title>
+  <style>
+    :root {
+      --paper: #f7f8f6;
+      --ink: #17262d;
+      --muted: #52646b;
+      --rule: #d7dfdb;
+      --blue: #1558c7;
+      --blue-pale: #e8f0fc;
+      --orange: #9d4f27;
+      --orange-pale: #f7ede5;
+      --font: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--paper); color: var(--ink); font-family: var(--font); }
+    body { overflow: hidden; }
+    a { color: var(--blue); text-decoration-thickness: 1px; text-underline-offset: .18em; }
+    button { font: inherit; }
+    .progress { position: fixed; z-index: 20; top: 0; left: 0; width: 100%; height: 4px; background: var(--rule); }
+    .progress span { display: block; height: 100%; width: 14.285%; background: var(--blue); transition: width .25s ease; }
+    .deck { width: 100%; height: 100dvh; }
+    .slide { display: none; width: 100%; height: 100dvh; min-height: 600px; padding: clamp(38px, 5.3vh, 68px) clamp(38px, 7vw, 116px) 74px; overflow-y: auto; }
+    .slide.active { display: flex; flex-direction: column; }
+    .slide-inner { width: min(100%, 1350px); margin: auto; }
+    .eyebrow { color: var(--blue); font-size: clamp(13px, 1.15vw, 16px); font-weight: 750; letter-spacing: .11em; text-transform: uppercase; margin: 0 0 24px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(58px, 6.1vw, 104px); line-height: 1.01; letter-spacing: -.065em; font-weight: 760; max-width: 1040px; margin-bottom: 31px; }
+    h2 { font-size: clamp(43px, 4.45vw, 72px); line-height: 1.06; letter-spacing: -.055em; font-weight: 750; margin-bottom: 38px; max-width: 1100px; }
+    h3 { font-size: clamp(22px, 1.8vw, 30px); line-height: 1.15; letter-spacing: -.025em; margin-bottom: 10px; }
+    .accent { color: var(--blue); }
+    .lead { color: var(--muted); font-size: clamp(22px, 2.05vw, 32px); line-height: 1.38; max-width: 990px; margin-bottom: 28px; }
+    .small { color: var(--muted); font-size: clamp(15px, 1.2vw, 18px); line-height: 1.45; }
+    .tagline { display: inline-flex; color: var(--blue); border-top: 2px solid var(--blue); padding-top: 13px; font-size: 18px; font-weight: 650; margin-top: 16px; }
+    .cover-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(290px, .7fr); gap: clamp(34px, 5vw, 82px); align-items: center; }
+    .cover-grid h1 { font-size: clamp(55px, 5.45vw, 88px); }
+    .cover-photo { margin: 0; height: min(52vh, 480px); min-height: 330px; display: flex; flex-direction: column; gap: 9px; }
+    .cover-photo img { width: 100%; height: calc(100% - 32px); object-fit: cover; object-position: 60% center; filter: saturate(.78); }
+    .cover-photo figcaption { font-size: 12px; line-height: 1.35; color: var(--muted); }
+    .footer { position: absolute; left: clamp(38px, 7vw, 116px); bottom: 27px; color: #64757b; font-size: 14px; }
+    .slide { position: relative; }
+    .example { border-left: 5px solid var(--blue); padding: 6px 0 6px 28px; max-width: 1020px; font-size: clamp(25px, 2.5vw, 39px); line-height: 1.3; font-weight: 600; letter-spacing: -.025em; margin-bottom: 46px; }
+    .flow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; border-top: 1px solid var(--rule); padding-top: 30px; }
+    .flow-item { position: relative; padding-right: 18px; }
+    .flow-item:not(:last-child)::after { content: "→"; position: absolute; right: -13px; top: 1px; color: var(--blue); font-size: 30px; font-weight: 400; }
+    .flow-index { color: var(--blue); font-weight: 750; font-size: 17px; margin-bottom: 12px; }
+    .flow-item p { font-size: clamp(17px, 1.35vw, 21px); color: var(--muted); line-height: 1.4; margin: 0; }
+    .data-hero { display: flex; align-items: baseline; gap: 24px; margin: 2px 0 30px; }
+    .data-hero strong { font-size: clamp(60px, 6.1vw, 100px); line-height: .95; letter-spacing: -.07em; color: var(--blue); }
+    .data-hero span { font-size: clamp(21px, 1.7vw, 28px); color: var(--muted); line-height: 1.2; }
+    .timeline { display: grid; grid-template-columns: 120px 1fr; border-top: 1px solid var(--rule); max-width: 1040px; }
+    .timeline .year, .timeline .detail { border-bottom: 1px solid var(--rule); padding: 17px 0; font-size: clamp(18px, 1.55vw, 24px); }
+    .timeline .year { color: var(--blue); font-weight: 760; padding-left: 24px; position: relative; }
+    .timeline .year::before { content: ""; position: absolute; left: 0; top: 50%; width: 10px; height: 10px; border-radius: 50%; background: var(--blue); transform: translateY(-50%); }
+    .timeline .detail { color: var(--ink); }
+    .timeline .detail span { color: var(--muted); }
+    .note { font-size: clamp(16px, 1.25vw, 19px); color: var(--muted); line-height: 1.45; max-width: 1000px; margin-top: 24px; }
+    .rows { max-width: 1100px; border-top: 1px solid var(--rule); }
+    .row { display: grid; grid-template-columns: 230px 1fr; align-items: start; gap: 35px; border-bottom: 1px solid var(--rule); padding: 22px 0; }
+    .row .label { color: var(--blue); font-size: clamp(17px, 1.4vw, 22px); font-weight: 720; }
+    .row .value { font-size: clamp(20px, 1.75vw, 27px); line-height: 1.32; }
+    .work-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(30px, 4vw, 68px); align-items: start; }
+    .work-list { border-top: 1px solid var(--rule); }
+    .work-list div { padding: 16px 0; border-bottom: 1px solid var(--rule); font-size: clamp(19px, 1.55vw, 25px); line-height: 1.27; }
+    .work-list strong { display: block; color: var(--blue); font-size: 15px; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+    .terminal { margin: 0; }
+    .terminal-window { color: #e9f3ef; background: #16252c; border-radius: 7px; box-shadow: 0 17px 40px rgba(23,38,45,.12); overflow: hidden; }
+    .terminal-head { height: 43px; padding: 0 17px; border-bottom: 1px solid #35505a; display: flex; align-items: center; gap: 8px; color: #b9cdca; font-size: 13px; }
+    .terminal-dot { width: 8px; height: 8px; border-radius: 50%; background: #6e9eae; }
+    .terminal pre { margin: 0; padding: 22px 20px 26px; white-space: pre-wrap; overflow-wrap: anywhere; font: 16px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .terminal .prompt { color: #8cc4ff; }
+    .terminal .value { color: #a8ddbf; font-weight: 700; }
+    .terminal figcaption { font-size: 13px; line-height: 1.4; color: var(--muted); margin-top: 10px; }
+    .metric-head { color: var(--muted); font-size: 20px; margin-bottom: 20px; }
+    .measure { max-width: 940px; display: grid; grid-template-columns: 245px 1fr 140px; align-items: center; gap: 20px; padding: 16px 0; font-size: clamp(18px, 1.55vw, 24px); }
+    .measure b { font-weight: 720; font-variant-numeric: tabular-nums; }
+    .track { height: 20px; background: #e4e9e6; border-radius: 99px; overflow: hidden; }
+    .bar { height: 100%; border-radius: 99px; }
+    .bar.blue { width: 65%; background: var(--blue); }
+    .bar.orange { width: 72%; background: var(--orange); }
+    .result { color: var(--orange); font-size: clamp(23px, 2vw, 32px); font-weight: 700; letter-spacing: -.025em; margin: 30px 0 10px; }
+    .gap-list { max-width: 1100px; border-top: 1px solid var(--rule); }
+    .gap { display: grid; grid-template-columns: 115px 1fr; gap: 35px; padding: 25px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+    .gap strong { color: var(--orange); font-size: clamp(34px, 3.2vw, 54px); line-height: 1; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+    .gap p { margin: 0; font-size: clamp(21px, 1.8vw, 28px); line-height: 1.26; }
+    .plan { max-width: 1130px; border-top: 1px solid var(--rule); }
+    .week { display: grid; grid-template-columns: 145px 1fr 270px; align-items: baseline; gap: 25px; padding: 17px 0; border-bottom: 1px solid var(--rule); }
+    .week .when { color: var(--blue); font-size: clamp(19px, 1.5vw, 23px); font-weight: 740; }
+    .week .task { font-size: clamp(20px, 1.75vw, 27px); font-weight: 650; line-height: 1.25; }
+    .week .owner { color: var(--muted); font-size: clamp(17px, 1.3vw, 20px); }
+    .deliverable { margin-top: 32px; padding-left: 25px; border-left: 5px solid var(--blue); font-size: clamp(22px, 2vw, 30px); line-height: 1.35; max-width: 1000px; }
+    .controls { position: fixed; z-index: 30; right: 24px; bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .controls button { width: 42px; height: 42px; border: 1px solid #c8d2cf; border-radius: 50%; background: rgba(247,248,246,.94); color: var(--ink); cursor: pointer; font-size: 24px; line-height: 1; }
+    .controls button:hover, .controls button:focus-visible { border-color: var(--blue); color: var(--blue); outline: 2px solid transparent; }
+    .controls button:disabled { opacity: .35; cursor: default; border-color: #c8d2cf; color: var(--ink); }
+    .controls .counter { min-width: 53px; text-align: center; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    @media (max-width: 760px) {
+      .slide { min-height: 0; padding: 70px 25px 80px; }
+      .slide-inner { margin: auto 0; }
+      h1 { font-size: clamp(48px, 11vw, 70px); }
+      h2 { font-size: clamp(38px, 9vw, 60px); margin-bottom: 27px; }
+      .lead { font-size: 21px; }
+      .cover-grid { grid-template-columns: 1fr; gap: 20px; }
+      .cover-grid h1 { font-size: clamp(46px, 10.4vw, 68px); margin-bottom: 17px; }
+      .cover-grid .lead { font-size: 18px; line-height: 1.34; margin-bottom: 13px; }
+      .cover-grid .tagline { font-size: 15px; margin-top: 0; padding-top: 8px; }
+      .cover-photo { height: 145px; min-height: 0; gap: 4px; }
+      .cover-photo img { height: calc(100% - 18px); }
+      .cover-photo figcaption { font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .example { font-size: 25px; margin-bottom: 28px; padding-left: 18px; }
+      .flow { grid-template-columns: 1fr; gap: 14px; padding-top: 18px; }
+      .flow-item { display: grid; grid-template-columns: 32px 1fr; gap: 0 14px; }
+      .flow-item:not(:last-child)::after { display: none; }
+      .flow-index { grid-row: 1 / 3; margin: 0; }
+      .flow-item h3 { font-size: 20px; margin-bottom: 4px; }
+      .flow-item p { font-size: 16px; }
+      .data-hero { display: block; }
+      .data-hero strong { display: block; font-size: 65px; }
+      .data-hero span { display: block; font-size: 19px; }
+      .timeline { grid-template-columns: 80px 1fr; }
+      .timeline .year, .timeline .detail { font-size: 17px; padding: 13px 0; }
+      .row { grid-template-columns: 1fr; gap: 4px; padding: 14px 0; }
+      .row .label { font-size: 16px; }
+      .row .value { font-size: 19px; }
+      .work-grid { grid-template-columns: 1fr; gap: 10px; }
+      .work-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+      .work-list div { font-size: 14px; padding: 7px 0; }
+      .work-list strong { font-size: 12px; margin-bottom: 3px; }
+      .terminal-head { height: 30px; font-size: 11px; }
+      .terminal pre { font-size: 11px; line-height: 1.3; padding: 8px 11px 10px; }
+      .terminal figcaption { display: none; }
+      .slide[data-slide="4"] h2 { margin-bottom: 15px; }
+      .slide[data-slide="4"] .footer { display: none; }
+      .measure { grid-template-columns: 1fr 75px; gap: 7px 12px; padding: 12px 0; font-size: 17px; }
+      .measure .track { grid-row: 2; grid-column: 1 / 3; }
+      .measure b { grid-row: 1; grid-column: 2; text-align: right; }
+      .metric-head { font-size: 16px; }
+      .gap { grid-template-columns: 65px 1fr; gap: 15px; padding: 17px 0; }
+      .gap strong { font-size: 35px; }
+      .gap p { font-size: 18px; }
+      .week { grid-template-columns: 85px 1fr; gap: 12px; padding: 14px 0; }
+      .week .when { font-size: 16px; }
+      .week .task { font-size: 18px; }
+      .week .owner { grid-column: 2; font-size: 15px; }
+      .deliverable { font-size: 20px; margin-top: 22px; }
+      .footer { left: 25px; bottom: 18px; font-size: 12px; }
+      .controls { right: 15px; bottom: 12px; }
+      .controls button { width: 35px; height: 35px; font-size: 21px; }
+      .controls .counter { min-width: 40px; font-size: 12px; }
+    }
+    @media print {
+      @page { size: landscape; margin: 0; }
+      html, body { overflow: visible; background: white; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .deck { height: auto; }
+      .slide, .slide.active { display: flex !important; height: 100vh; min-height: 0; page-break-after: always; break-after: page; overflow: hidden; }
+      .progress, .controls { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { .progress span { transition: none; } }
+  </style>
+</head>
+<body>
+  <div class="progress" aria-hidden="true"><span id="progressFill"></span></div>
+  <main class="deck" id="deck">
+    <section class="slide active" data-slide="1" aria-label="Slide 1: project overview">
+      <div class="slide-inner">
+        <div class="cover-grid">
+          <div>
+            <p class="eyebrow">Four-person mini project · Progress review</p>
+            <h1>US market<br><span class="accent">scenario simulator</span></h1>
+            <p class="lead">Given a hypothetical oil or interest-rate shock, estimate a range of US market and sector returns from historical data.</p>
+            <div class="tagline">Data pipeline built · Simulator in progress</div>
+          </div>
+          <figure class="cover-photo">
+            <img src="assets/nyse-trading-floor.jpg" alt="Archival view of the New York Stock Exchange trading floor" loading="eager">
+            <figcaption>NYSE trading floor · Carol M. Highsmith / <a href="https://www.loc.gov/resource/highsm.16025/" target="_blank" rel="noopener">Library of Congress</a></figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="footer">Progress as of 1 November 2026</div>
+    </section>
+
+    <section class="slide" data-slide="2" aria-label="Slide 2: project goal">
+      <div class="slide-inner">
+        <p class="eyebrow">Project goal</p>
+        <h2>One question, clear assumptions</h2>
+        <div class="example">“Oil rises 10%. The US 10-year yield rises 20 basis points. What could happen over 5 trading days?”</div>
+        <div class="flow">
+          <div class="flow-item"><div class="flow-index">01</div><h3>Read the scenario</h3><p>Extract stated numbers and ask for missing details.</p></div>
+          <div class="flow-item"><div class="flow-index">02</div><h3>Estimate ranges</h3><p>Use a numerical model for SPY and five sector ETFs.</p></div>
+          <div class="flow-item"><div class="flow-index">03</div><h3>Show the limits</h3><p>Display the assumptions, horizon, and uncertainty.</p></div>
+        </div>
+        <p class="note">The output is a conditional scenario estimate. It does not predict whether the event will occur.</p>
+      </div>
+      <div class="footer">First version: oil and 10-year Treasury yield changes</div>
+    </section>
+
+    <section class="slide" data-slide="3" aria-label="Slide 3: data collected">
+      <div class="slide-inner">
+        <p class="eyebrow">Current data</p>
+        <h2>Three distinct historical layers</h2>
+        <div class="data-hero"><strong>42,000</strong><span>daily observations across six US ETFs<br>SPY · XLF · XLE · XLK · XLV · XLY</span></div>
+        <div class="timeline">
+          <div class="year">1900</div><div class="detail">Monthly market history and geopolitical risk <span>→ long-run context</span></div>
+          <div class="year">1926</div><div class="detail">Daily US market and industry returns <span>→ research history</span></div>
+          <div class="year">1999</div><div class="detail">Six daily ETFs through October 2026 <span>→ current response table</span></div>
+        </div>
+        <p class="note">These are separate datasets. We do not claim a continuous daily ETF series from 1900.</p>
+      </div>
+      <div class="footer">Sources and units: project data dictionary</div>
+    </section>
+
+    <section class="slide" data-slide="4" aria-label="Slide 4: work completed">
+      <div class="slide-inner">
+        <p class="eyebrow">Completed work</p>
+        <h2>A reproducible data pipeline</h2>
+        <div class="work-grid">
+          <div class="work-list">
+            <div><strong>Collect</strong>US market and economic data.</div>
+            <div><strong>Prepare</strong>Adjusted 1, 5, and 20-day ETF returns.</div>
+            <div><strong>Evaluate</strong>Oil/yield baseline with chronological splits.</div>
+            <div><strong>Check</strong>Audit calculations and missing values.</div>
+          </div>
+          <figure class="terminal">
+            <div class="terminal-window">
+              <div class="terminal-head"><span class="terminal-dot"></span> <span>Local data audit · selected results</span></div>
+              <pre><span class="prompt">$</span> .venv/bin/python scripts/audit_data.py
+
+ETF response rows       <span class="value">42,000</span>
+Scenario drafts         <span class="value">20</span>
+Event candidates        <span class="value">16</span>
+
+<span class="prompt">$</span> .venv/bin/python -m unittest \
+  discover -s tests -q
+Six tests               <span class="value">OK</span></pre>
+            </div>
+            <figcaption>Audit summary, shortened for presentation. Full output is available in the local project.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="footer">Code and review instructions are in the private project repository</div>
+    </section>
+
+    <section class="slide" data-slide="5" aria-label="Slide 5: baseline result">
+      <div class="slide-inner">
+        <p class="eyebrow">First model result</p>
+        <h2>The baseline sets a bar to beat</h2>
+        <p class="metric-head">SPY one-day test error · median absolute error in percentage points · lower is better</p>
+        <div class="measure"><span>Predict zero return</span><div class="track"><div class="bar blue"></div></div><b>0.65</b></div>
+        <div class="measure"><span>Oil/yield baseline</span><div class="track"><div class="bar orange"></div></div><b>0.72</b></div>
+        <p class="result">The current baseline is worse on the one-day test.</p>
+        <p class="lead" style="font-size:clamp(20px,1.65vw,26px); max-width:850px; margin-bottom:0;">It is a useful benchmark, not a finished prediction model. Same-day oil and yield changes describe conditions that may only be known after trading.</p>
+      </div>
+      <div class="footer">Held-out SPY test period: 2023 onward · 936 eligible dates</div>
+    </section>
+
+    <section class="slide" data-slide="6" aria-label="Slide 6: remaining work">
+      <div class="slide-inner">
+        <p class="eyebrow">Remaining work</p>
+        <h2>What is not ready yet</h2>
+        <div class="gap-list">
+          <div class="gap"><strong>20</strong><p>Scenario examples need human review before language-model training.</p></div>
+          <div class="gap"><strong>16</strong><p>Sourced event cases need verified first-public times for event tests.</p></div>
+          <div class="gap"><strong>2</strong><p>Monthly context series, housing and GPR, need release-time histories before daily prediction use.</p></div>
+        </div>
+        <p class="note">Mistral fine-tuning and the terminal application have not started. Housing values are collected, but their historical release-time versions are not.</p>
+      </div>
+      <div class="footer">Unknown event shock sizes remain blank</div>
+    </section>
+
+    <section class="slide" data-slide="7" aria-label="Slide 7: next steps">
+      <div class="slide-inner">
+        <p class="eyebrow">Next four weeks</p>
+        <h2>Plan to reach a terminal demo</h2>
+        <div class="plan">
+          <div class="week"><span class="when">Week 1</span><span class="task">Review labels and freeze one data snapshot</span><span class="owner">Data owner</span></div>
+          <div class="week"><span class="when">Week 2</span><span class="task">Test numerical models against the baseline</span><span class="owner">Numerical-model owner</span></div>
+          <div class="week"><span class="when">Week 3</span><span class="task">Evaluate Mistral's scenario extraction</span><span class="owner">Language-model owner</span></div>
+          <div class="week"><span class="when">Week 4</span><span class="task">Connect the terminal flow and test events</span><span class="owner">CLI and evaluation owner</span></div>
+        </div>
+        <div class="deliverable">Target demo: scenario text → checked assumptions → return ranges and clear limits.</div>
+      </div>
+      <div class="footer"><a href="https://github.com/Gaurang-5/us-market-scenario-simulator" target="_blank" rel="noopener">Project repository</a> · Private access required</div>
+    </section>
+  </main>
+  <nav class="controls" aria-label="Slide controls">
+    <button id="prev" type="button" aria-label="Previous slide">‹</button>
+    <span id="counter" class="counter" aria-live="polite">1 / 7</span>
+    <button id="next" type="button" aria-label="Next slide">›</button>
+  </nav>
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+    const counter = document.getElementById('counter');
+    const progress = document.getElementById('progressFill');
+    let index = Math.max(0, Math.min(slides.length - 1, (Number(location.hash.slice(1)) || 1) - 1));
+    function show(newIndex) {
+      index = Math.max(0, Math.min(slides.length - 1, newIndex));
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+        slide.setAttribute('aria-hidden', String(i !== index));
+        slide.scrollTop = 0;
+      });
+      counter.textContent = `${index + 1} / ${slides.length}`;
+      progress.style.width = `${((index + 1) / slides.length) * 100}%`;
+      prev.disabled = index === 0;
+      next.disabled = index === slides.length - 1;
+      history.replaceState(null, '', `#${index + 1}`);
+    }
+    prev.addEventListener('click', () => show(index - 1));
+    next.addEventListener('click', () => show(index + 1));
+    document.addEventListener('keydown', (event) => {
+      if (['ArrowRight', 'PageDown', ' '].includes(event.key)) { event.preventDefault(); show(index + 1); }
+      if (['ArrowLeft', 'PageUp'].includes(event.key)) { event.preventDefault(); show(index - 1); }
+      if (event.key === 'Home') show(0);
+      if (event.key === 'End') show(slides.length - 1);
+    });
+    window.addEventListener('hashchange', () => show((Number(location.hash.slice(1)) || 1) - 1));
+    let startX = null;
+    document.addEventListener('touchstart', event => { startX = event.touches[0]?.clientX ?? null; }, { passive: true });
+    document.addEventListener('touchend', event => {
+      if (startX === null) return;
+      const endX = event.changedTouches[0]?.clientX ?? startX;
+      if (Math.abs(endX - startX) > 65) show(index + (endX < startX ? 1 : -1));
+      startX = null;
+    }, { passive: true });
+    show(index);
+  </script>
+</body>
+</html>

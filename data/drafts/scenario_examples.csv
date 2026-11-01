@@ -1,0 +1,21 @@
+scenario_id,scenario_text,event_type,countries,affected_sectors,oil_change_percent,treasury_10y_change_basis_points,time_horizon_trading_days,missing_assumptions,review_status
+S001,WTI oil rises 10 percent and the US 10-year Treasury yield rises 20 basis points,oil_and_rates,US,SPY|XLE|XLY,10,20,5,,unreviewed
+S002,WTI oil falls 8 percent while the US 10-year Treasury yield is unchanged,oil_and_rates,US,SPY|XLE|XLY,-8,0,5,,unreviewed
+S003,WTI oil rises 3 percent and the US 10-year Treasury yield falls 10 basis points,oil_and_rates,US,SPY|XLE|XLK,3,-10,20,,unreviewed
+S004,WTI oil falls 2 percent and the US 10-year Treasury yield rises 5 basis points,oil_and_rates,US,SPY|XLE|XLF,-2,5,1,,unreviewed
+S005,WTI oil is unchanged and the US 10-year Treasury yield rises 25 basis points,rates,US,SPY|XLF|XLK,0,25,1,,unreviewed
+S006,WTI oil is unchanged and the US 10-year Treasury yield falls 15 basis points,rates,US,SPY|XLF|XLK,0,-15,20,,unreviewed
+S007,WTI oil rises 6 percent and the US 10-year Treasury yield is unchanged,oil,US,SPY|XLE|XLY,6,0,5,,unreviewed
+S008,WTI oil falls 12 percent and the US 10-year Treasury yield falls 8 basis points,oil_and_rates,US,SPY|XLE|XLF,-12,-8,20,,unreviewed
+S009,WTI oil rises 1 percent and the US 10-year Treasury yield rises 2 basis points,oil_and_rates,US,SPY|XLE|XLF,1,2,1,,unreviewed
+S010,WTI oil falls 4 percent and the US 10-year Treasury yield rises 12 basis points,oil_and_rates,US,SPY|XLE|XLY,-4,12,5,,unreviewed
+S011,A large US bank fails tomorrow,bank_failure,US,SPY|XLF,,,5,bank_size|oil_change|treasury_yield_change,unreviewed
+S012,A small regional US bank fails tomorrow,bank_failure,US,SPY|XLF,,,1,financial_impact|oil_change|treasury_yield_change,unreviewed
+S013,New sanctions restrict a major oil exporter,sanctions,US|other,SPY|XLE|XLY,,,20,oil_change|treasury_yield_change|sanction_scope,unreviewed
+S014,A war starts in a major oil-producing region,war,US|other,SPY|XLE|XLY,,,5,oil_change|treasury_yield_change|conflict_scope,unreviewed
+S015,The Federal Reserve announces an unexpected rate increase,monetary_policy,US,SPY|XLF|XLK,,,5,treasury_yield_change|oil_change|policy_rate_change,unreviewed
+S016,US housing starts drop sharply,housing,US,SPY|XLF|XLY,,,20,housing_change|release_date|oil_change|treasury_yield_change,unreviewed
+S017,A large oil supply disruption is announced,oil_supply,US|other,SPY|XLE|XLY,,,1,oil_change|treasury_yield_change|supply_volume,unreviewed
+S018,An international trade agreement is suspended,trade_policy,US|other,SPY|XLK|XLY,,,20,trade_exposure|oil_change|treasury_yield_change,unreviewed
+S019,The US unemployment rate rises unexpectedly,employment,US,SPY|XLF|XLY,,,5,unemployment_surprise|release_date|oil_change|treasury_yield_change,unreviewed
+S020,Global shipping through a major chokepoint is blocked,shipping_disruption,US|other,SPY|XLE|XLY,,,5,oil_change|treasury_yield_change|duration,unreviewed
